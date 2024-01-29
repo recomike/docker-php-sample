@@ -1,0 +1,5 @@
+{
+    "dataworkspace.excludedProjects": [
+        "Forms2/Forms2.sqlproj"
+    ]
+}

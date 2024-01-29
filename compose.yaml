@@ -1,0 +1,63 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+  webserver:
+    container_name: php-82apache
+    build:
+      context: .
+      dockerfile: web.Dockerfile
+    ports:
+      - 9000:80
+    secrets:
+      - db-password
+    environment:
+      - PASSWORD_FILE_PATH=/run/secrets/db-password
+      - DB_HOST=localhost
+      - DB_NAME=TAMJobPostings
+      - DB_USER=tampostings
+# The commented out section below is an example of how to define a PostgreSQL
+# database that your application can use. `depends_on` tells Docker Compose to
+# start the database before your application. The `db-data` volume persists the
+# database data between container restarts. The `db-password` secret is used
+# to set the database password. You must create `db/password.txt` and add
+# a password of your choosing to it before running `docker-compose up`.
+    # depends_on:
+    #   mssql:
+        # condition: service_healthy
+  mssql:
+    container_name: mssql
+    build:
+      context: .
+      dockerfile: db.Dockerfile
+    environment:
+      SA_PASSWORD: "Secure-Password.1234"
+      ACCEPT_EULA: "Y"
+    # user: mssql
+    volumes:
+      - db-data:/var/opt/mssql/backup:rw
+      - db-data:/var/opt/mssql/data:rw
+      - db-data:/var/opt/mssql/log:rw
+      - db-data:/var/opt/mssql/secrets:rw
+    ports:
+      - 1433:1433
+    # healthcheck:
+    #   test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "SELECT 1" || exit 1
+    #   interval: 10s
+    #   timeout: 3s
+    #   retries: 10
+    #   start_period: 10s
+    secrets:
+      - db-password
+volumes:
+  db-data:
+secrets:
+  db-password:
+    file: Forms2/_db-migrations/password.txt
+
